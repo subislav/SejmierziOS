@@ -23,8 +23,8 @@ public final class SettingsViewModel {
     public private(set) var state = SettingsState()
 
     private let settings: SettingsRepository
-    private var modeTask: Task<Void, Never>?
-    private var languageTask: Task<Void, Never>?
+    nonisolated(unsafe) private var modeTask: Task<Void, Never>?
+    nonisolated(unsafe) private var languageTask: Task<Void, Never>?
 
     public init(settings: SettingsRepository) {
         self.settings = settings
