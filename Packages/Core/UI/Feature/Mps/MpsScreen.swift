@@ -6,9 +6,10 @@ public struct MpsScreen: View {
     @Environment(RootRouter.self) private var router
     @Environment(\.benchmarkContext) private var benchmarkContext
     @Environment(\.openSettings) private var openSettings
+    @Environment(\.appLanguage) private var language
 
     public init(viewModel: MpsViewModel) {
-        self.viewModel = viewModel
+        _viewModel = State(initialValue: viewModel)
     }
 
     public var body: some View {
@@ -16,11 +17,11 @@ public struct MpsScreen: View {
             if viewModel.state.isLoading && viewModel.state.mps.isEmpty {
                 LoadingView()
             } else if let error = viewModel.state.error, viewModel.state.mps.isEmpty {
-                MessageView(message: error.localizedMessage) {
+                MessageView(message: error.localizedMessage(language: language)) {
                     viewModel.send(.refresh)
                 }
             } else if viewModel.state.mps.isEmpty {
-                MessageView(message: String(localized: "empty_mps", defaultValue: "Brak posłów do wyświetlenia."))
+                MessageView(message: L10n.string(.emptyMps, language: language))
             } else {
                 List {
                     ForEach(viewModel.state.mps) { mp in
@@ -48,10 +49,10 @@ public struct MpsScreen: View {
                 }
             }
         }
-        .navigationTitle(String(localized: "mps_title", defaultValue: "Posłowie"))
+        .navigationTitle(L10n.string(.mpsTitle, language: language))
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(String(localized: "action_refresh", defaultValue: "Odśwież")) {
+                Button(L10n.string(.actionRefresh, language: language)) {
                     viewModel.send(.refresh)
                 }
             }
@@ -61,7 +62,7 @@ public struct MpsScreen: View {
                 } label: {
                     Image(systemName: "line.3.horizontal")
                 }
-                .accessibilityLabel(String(localized: "settings_menu", defaultValue: "Ustawienia"))
+                .accessibilityLabel(L10n.string(.settingsMenu, language: language))
             }
         }
         .screenDisplayTracking(slice: "MPs", contentLoaded: !viewModel.state.mps.isEmpty)

@@ -4,9 +4,10 @@ import Domain
 public struct BenchmarkScreen: View {
     @State var viewModel: BenchmarkViewModel
     @Environment(\.openSettings) private var openSettings
+    @Environment(\.appLanguage) private var language
 
     public init(viewModel: BenchmarkViewModel) {
-        self.viewModel = viewModel
+        _viewModel = State(initialValue: viewModel)
     }
 
     public var body: some View {
@@ -15,14 +16,14 @@ public struct BenchmarkScreen: View {
 
                 HStack(spacing: 12) {
                     VStack(alignment: .leading) {
-                        Text(String(localized: "benchmark_iterations", defaultValue: "Liczba iteracji")).font(.caption)
+                        Text(L10n.string(.benchmarkIterations, language: language)).font(.caption)
                         TextField("35", text: $viewModel.iterationsInput)
                             .keyboardType(.numberPad)
                             .textFieldStyle(.roundedBorder)
                             .onChange(of: viewModel.iterationsInput) { _, _ in viewModel.applyConfig() }
                     }
                     VStack(alignment: .leading) {
-                        Text(String(localized: "benchmark_warmup", defaultValue: "Rozgrzewka")).font(.caption)
+                        Text(L10n.string(.benchmarkWarmup, language: language)).font(.caption)
                         TextField("5", text: $viewModel.warmupInput)
                             .keyboardType(.numberPad)
                             .textFieldStyle(.roundedBorder)
@@ -32,28 +33,28 @@ public struct BenchmarkScreen: View {
 
                 HStack(spacing: 12) {
                     Button(action: viewModel.exportCsv) {
-                        Text(String(localized: "benchmark_export_csv", defaultValue: "Eksport CSV"))
+                        Text(L10n.string(.benchmarkExportCsv, language: language))
                             .frame(maxWidth: .infinity)
                     }.buttonStyle(.borderedProminent)
 
                     Button(action: viewModel.clear) {
-                        Text(String(localized: "benchmark_clear", defaultValue: "Wyczyść"))
+                        Text(L10n.string(.benchmarkClear, language: language))
                             .frame(maxWidth: .infinity)
                     }.buttonStyle(.bordered)
                 }
 
-                Text("\(viewModel.sampleCount) próbek")
+                Text("\(viewModel.sampleCount) \(L10n.string(.benchmarkSamples, language: language))")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
                 if let path = viewModel.lastExportPath {
-                    Text("Wyeksportowano do: \(path)")
+                    Text(String(format: L10n.string(.benchmarkExportedTo, language: language), path))
                         .font(.caption2)
                         .foregroundStyle(.green)
                 }
 
                 if viewModel.stats.isEmpty {
-                    Text(String(localized: "benchmark_no_data", defaultValue: "Brak pomiarów. Przeglądaj aplikację, aby je zebrać."))
+                    Text(L10n.string(.benchmarkNoData, language: language))
                         .padding(.top, 24)
                 } else {
                     ForEach(viewModel.stats, id: \.stableId) { stat in
@@ -63,7 +64,7 @@ public struct BenchmarkScreen: View {
             }
             .padding(16)
         }
-        .navigationTitle(String(localized: "benchmark_title", defaultValue: "Telemetria"))
+        .navigationTitle(L10n.string(.benchmarkTitle, language: language))
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
@@ -71,7 +72,7 @@ public struct BenchmarkScreen: View {
                 } label: {
                     Image(systemName: "line.3.horizontal")
                 }
-                .accessibilityLabel(String(localized: "settings_menu", defaultValue: "Ustawienia"))
+                .accessibilityLabel(L10n.string(.settingsMenu, language: language))
             }
         }
     }

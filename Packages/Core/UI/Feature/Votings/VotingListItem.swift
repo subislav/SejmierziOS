@@ -3,6 +3,7 @@ import Domain
 
 struct VotingListItem: View {
     let voting: Voting
+    @Environment(\.appLanguage) private var language
 
     private var displayTitle: String {
         if let topic = voting.topic, !topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -11,7 +12,7 @@ struct VotingListItem: View {
         if let title = voting.title, !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return title
         }
-        return String(localized: "Posiedzenie \(voting.sitting), Głosowanie \(voting.votingNumber)")
+        return L10n.votingTitle(sitting: voting.sitting, votingNumber: voting.votingNumber, language: language)
     }
 
     var body: some View {
@@ -28,7 +29,7 @@ struct VotingListItem: View {
             }
 
 
-                Text("ZA: \(voting.yes) • PRZECIW: \(voting.no) • WSTRZ.: \(voting.abstain)")
+            Text(L10n.voteLine(yes: voting.yes, no: voting.no, abstain: voting.abstain, language: language))
                     .font(.body)
                     .foregroundColor(.secondary)
                     .padding(.top, 4)

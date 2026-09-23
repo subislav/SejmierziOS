@@ -11,6 +11,10 @@ public final class AppContainer {
     public let settingsRepository: SettingsRepository
     private let metricRepository: MetricRepository
     private let benchmarkExporter: BenchmarkExporter
+    private var benchmarkViewModel: BenchmarkViewModel?
+    private var mpsViewModel: MpsViewModel?
+    private var clubsViewModel: ClubsViewModel?
+    private var votingsViewModel: VotingsViewModel?
 
     private let getMps: GetMpsUseCase
     private let getMpDetail: GetMpDetailUseCase
@@ -58,7 +62,10 @@ public final class AppContainer {
     }
 
     public func makeMpsViewModel() -> MpsViewModel {
-        MpsViewModel(getMps: getMps, settings: settingsRepository)
+        if let mpsViewModel { return mpsViewModel }
+        let viewModel = MpsViewModel(getMps: getMps, settings: settingsRepository)
+        mpsViewModel = viewModel
+        return viewModel
     }
 
     public func makeMpDetailViewModel(id: Int) -> MpDetailViewModel {
@@ -66,7 +73,10 @@ public final class AppContainer {
     }
 
     public func makeClubsViewModel() -> ClubsViewModel {
-        ClubsViewModel(getClubs: getClubs, settings: settingsRepository)
+        if let clubsViewModel { return clubsViewModel }
+        let viewModel = ClubsViewModel(getClubs: getClubs, settings: settingsRepository)
+        clubsViewModel = viewModel
+        return viewModel
     }
 
     public func makeClubDetailViewModel(id: String) -> ClubDetailViewModel {
@@ -74,7 +84,10 @@ public final class AppContainer {
     }
 
     public func makeVotingsViewModel() -> VotingsViewModel {
-        VotingsViewModel(getVotings: getVotings, settings: settingsRepository)
+        if let votingsViewModel { return votingsViewModel }
+        let viewModel = VotingsViewModel(getVotings: getVotings, settings: settingsRepository)
+        votingsViewModel = viewModel
+        return viewModel
     }
 
     public func makeVotingDetailViewModel(sitting: Int, votingNumber: Int) -> VotingDetailViewModel {
@@ -82,6 +95,15 @@ public final class AppContainer {
     }
 
     public func makeBenchmarkViewModel() -> BenchmarkViewModel {
-        BenchmarkViewModel(metrics: metricRepository, settings: settingsRepository, exporter: benchmarkExporter)
+        if let benchmarkViewModel {
+            return benchmarkViewModel
+        }
+        let viewModel = BenchmarkViewModel(
+            metrics: metricRepository,
+            settings: settingsRepository,
+            exporter: benchmarkExporter
+        )
+        benchmarkViewModel = viewModel
+        return viewModel
     }
 }

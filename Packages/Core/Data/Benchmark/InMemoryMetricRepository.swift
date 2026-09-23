@@ -4,26 +4,19 @@ import Domain
 public final class InMemoryMetricRepository: MetricRepository, MetricSink, @unchecked Sendable {
     private var _metrics: [Domain.Metric] = []
     private let lock = NSLock()
+    private let broadcast = AsyncStreamBroadcast<[Domain.Metric]>(initial: [])
 
-    private let stream: AsyncStream<[Domain.Metric]>
-    private let continuation: AsyncStream<[Domain.Metric]>.Continuation
+    public var metrics: AsyncStream<[Domain.Metric]> { broadcast.subscribe() }
+    public var metricsStream: AsyncStream<[Domain.Metric]> { broadcast.subscribe() }
 
-    public var metrics: AsyncStream<[Domain.Metric]> { stream }
-    public var metricsStream: AsyncStream<[Domain.Metric]> { stream }
-
-    public init() {
-        let (s, c) = AsyncStream<[Domain.Metric]>.makeStream()
-        self.stream = s
-        self.continuation = c
-        c.yield([])
-    }
+    public init() {}
 
     public func record(metric: Domain.Metric) {
         lock.lock()
         _metrics.append(metric)
         let current = _metrics
         lock.unlock()
-        continuation.yield(current)
+        broadcast.yield(current)
     }
 
     public func snapshot() -> [Domain.Metric] {
@@ -36,6 +29,6 @@ public final class InMemoryMetricRepository: MetricRepository, MetricSink, @unch
         lock.lock()
         _metrics.removeAll()
         lock.unlock()
-        continuation.yield([])
+        broadcast.yield([])
     }
 }

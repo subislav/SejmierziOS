@@ -4,20 +4,21 @@ import Domain
 public struct VotingDetailScreen: View {
     @State var viewModel: VotingDetailViewModel
     @Environment(\.benchmarkContext) private var benchmarkContext
+    @Environment(\.appLanguage) private var language
 
     public init(viewModel: VotingDetailViewModel) {
-        self.viewModel = viewModel
+        _viewModel = State(initialValue: viewModel)
     }
 
     private func getDisplayTitle(for voting: Voting) -> String {
         if let topic = voting.topic, !topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return topic }
         if let title = voting.title, !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return title }
-        return String(localized: "Posiedzenie \(voting.sitting), Głosowanie \(voting.votingNumber)")
+        return L10n.votingTitle(sitting: voting.sitting, votingNumber: voting.votingNumber, language: language)
     }
 
     public var body: some View {
         stateDrivenContent
-            .navigationTitle("voting_detail_title")
+            .navigationTitle(L10n.string(.votingDetailTitle, language: language))
             .navigationBarTitleDisplayMode(.inline)
             .screenDisplayTracking(slice: "Voting detail", contentLoaded: viewModel.state.detail != nil)
             .scrollJankTracking(slice: "Voting detail")
@@ -28,8 +29,8 @@ public struct VotingDetailScreen: View {
         if viewModel.state.isLoading {
             LoadingView()
         } else if let error = viewModel.state.error {
-            MessageView(message: error.localizedMessage) {
-                let _ = viewModel.retry()
+            MessageView(message: error.localizedMessage(language: language)) {
+                viewModel.retry()
             }
         } else if let detail = viewModel.state.detail {
             votingFieldsList(for: detail)
@@ -52,16 +53,25 @@ public struct VotingDetailScreen: View {
                     }
 
                     if let date = detail.voting.date { Text(date).font(.caption).foregroundColor(.secondary) }
-                    if let kind = detail.voting.kind { Text("Rodzaj: \(kind)").font(.subheadline) }
-                    if let majority = detail.voting.majorityType { Text("Większość: \(majority)").font(.subheadline) }
+                    if let kind = detail.voting.kind {
+                        Text(L10n.labeled(.kind, value: kind, language: language)).font(.subheadline)
+                    }
+                    if let majority = detail.voting.majorityType {
+                        Text(L10n.labeled(.majority, value: majority, language: language)).font(.subheadline)
+                    }
 
                     Divider().padding(.vertical, 4)
 
-                    Text("ZA: \(detail.voting.yes) • PRZECIW: \(detail.voting.no) • WSTRZ.: \(detail.voting.abstain)")
-                        .font(.body)
-                        .fontWeight(.medium)
+                    Text(L10n.voteLine(
+                        yes: detail.voting.yes,
+                        no: detail.voting.no,
+                        abstain: detail.voting.abstain,
+                        language: language
+                    ))
+                    .font(.body)
+                    .fontWeight(.medium)
 
-                    Text("Oddano głosów: \(detail.voting.totalVoted)")
+                    Text(L10n.labeled(.votesCast, value: "\(detail.voting.totalVoted)", language: language))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -70,18 +80,24 @@ public struct VotingDetailScreen: View {
 
             if detail.clubVotes.isEmpty {
                 Section {
-                    Text("voting_no_club_tally")
+                    Text(L10n.string(.votingNoClubTally, language: language))
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
             } else {
-                Section(header: Text("Rozkład głosów").font(.title3.bold())) {
+                Section(header: Text(L10n.string(.voteBreakdown, language: language)).font(.title3.bold())) {
                     ForEach(detail.clubVotes, id: \.club) { summary in
                         VStack(alignment: .leading, spacing: 2) {
                             Text(summary.club).font(.headline)
-                            Text("ZA: \(summary.yes) | PRZECIW: \(summary.no) | WSTRZ.: \(summary.abstain) | NIEOBECNI: \(summary.absent)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                            Text(L10n.clubVoteLine(
+                                yes: summary.yes,
+                                no: summary.no,
+                                abstain: summary.abstain,
+                                absent: summary.absent,
+                                language: language
+                            ))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                         }
                         .padding(.vertical, 4)
                     }

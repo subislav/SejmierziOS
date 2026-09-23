@@ -2,20 +2,20 @@ import Foundation
 import Domain
 
 public extension DomainError {
-    var localizedMessage: String {
+    func localizedMessage(language: AppLanguage) -> String {
         switch self {
         case .network:
-            return NSLocalizedString("error_network", comment: "")
+            return L10n.string(.errorNetwork, language: language)
         case .http(let code, _):
-            return String(format: NSLocalizedString("Błąd serwera (%d).", comment: ""), code)
+            return L10n.httpError(code: code, language: language)
         case .serialization:
-            return NSLocalizedString("error_serialization", comment: "")
+            return L10n.string(.errorSerialization, language: language)
         case .notCached:
-            return NSLocalizedString("error_not_cached", comment: "")
+            return L10n.string(.errorNotCached, language: language)
         case .empty:
-            return NSLocalizedString("error_empty", comment: "")
+            return L10n.string(.errorEmpty, language: language)
         case .unknown:
-            return NSLocalizedString("error_unknown", comment: "")
+            return L10n.string(.errorUnknown, language: language)
         }
     }
 }

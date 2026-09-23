@@ -15,6 +15,7 @@ public struct LoadingView: View {
 public struct MessageView: View {
     let message: String
     let onRetry: (() -> Void)?
+    @Environment(\.appLanguage) private var language
 
     public init(message: String, onRetry: (() -> Void)? = nil) {
         self.message = message
@@ -29,7 +30,7 @@ public struct MessageView: View {
 
             if let onRetry = onRetry {
                 Button(action: onRetry) {
-                    Text(String(localized: "action_retry", defaultValue: "Ponów"))
+                    Text(L10n.string(.actionRetry, language: language))
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                         .padding(.horizontal, 24)

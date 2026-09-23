@@ -39,19 +39,15 @@ public final class SettingsViewModel {
                 self?.state.language = language
             }
         }
-
-        Task { [weak self] in
-            guard let self else { return }
-            self.state.mode = await settings.currentDataSourceMode()
-            self.state.language = await settings.currentAppLanguage()
-        }
     }
 
     public func send(_ intent: SettingsIntent) {
         switch intent {
         case .toggleMode(let mode):
+            state.mode = mode
             Task { await settings.setDataSourceMode(mode) }
         case .changeLanguage(let language):
+            state.language = language
             Task { await settings.setAppLanguage(language) }
         }
     }

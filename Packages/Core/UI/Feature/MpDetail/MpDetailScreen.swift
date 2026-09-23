@@ -4,14 +4,15 @@ import Domain
 public struct MpDetailScreen: View {
     @State var viewModel: MpDetailViewModel
     @Environment(\.benchmarkContext) private var benchmarkContext
+    @Environment(\.appLanguage) private var language
 
     public init(viewModel: MpDetailViewModel) {
-        self.viewModel = viewModel
+        _viewModel = State(initialValue: viewModel)
     }
 
     public var body: some View {
         stateDrivenContent
-            .navigationTitle(String(localized: "mp_detail_title", defaultValue: "Profil posła"))
+            .navigationTitle(L10n.string(.mpDetailTitle, language: language))
             .navigationBarTitleDisplayMode(.inline)
             .screenDisplayTracking(slice: "MP detail", contentLoaded: viewModel.state.mp != nil)
     }
@@ -21,7 +22,7 @@ public struct MpDetailScreen: View {
         if viewModel.state.isLoading {
             LoadingView()
         } else if let error = viewModel.state.error {
-            MessageView(message: error.localizedMessage) {
+            MessageView(message: error.localizedMessage(language: language)) {
                 viewModel.retry()
             }
         } else if let mp = viewModel.state.mp {
@@ -41,7 +42,7 @@ public struct MpDetailScreen: View {
                         .fontWeight(.bold)
 
                     if !mp.active {
-                        Text(String(localized: "mp_inactive", defaultValue: "NIEAKTYWNY(A)"))
+                        Text(L10n.string(.mpInactive, language: language))
                             .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundColor(.primary)
@@ -50,20 +51,40 @@ public struct MpDetailScreen: View {
                 .padding(.vertical, 8)
             }
 
-            Section(header: Text("Informacje podstawowe")) {
-                if let club = mp.club { DetailRow(label: "Klub", value: club) }
-                if let district = mp.districtName { DetailRow(label: "Okręg wyborczy", value: district) }
-                if let districtNum = mp.districtNum { DetailRow(label: "Numer okręgu", value: "\(districtNum)") }
-                if let voivodeship = mp.voivodeship { DetailRow(label: "Województwo", value: voivodeship) }
-                if let votes = mp.numberOfVotes { DetailRow(label: "Liczba głosów", value: "\(votes)") }
+            Section(header: Text(L10n.string(.basicInfo, language: language))) {
+                if let club = mp.club {
+                    DetailRow(label: L10n.string(.club, language: language), value: club)
+                }
+                if let district = mp.districtName {
+                    DetailRow(label: L10n.string(.electoralDistrict, language: language), value: district)
+                }
+                if let districtNum = mp.districtNum {
+                    DetailRow(label: L10n.string(.districtNumber, language: language), value: "\(districtNum)")
+                }
+                if let voivodeship = mp.voivodeship {
+                    DetailRow(label: L10n.string(.voivodeship, language: language), value: voivodeship)
+                }
+                if let votes = mp.numberOfVotes {
+                    DetailRow(label: L10n.string(.voteCount, language: language), value: "\(votes)")
+                }
             }
 
-            Section(header: Text("Dane personalne")) {
-                if let profession = mp.profession { DetailRow(label: "Zawód", value: profession) }
-                if let education = mp.educationLevel { DetailRow(label: "Wykształcenie", value: education) }
-                if let birthDate = mp.birthDate { DetailRow(label: "Data urodzenia", value: birthDate) }
-                if let birthLocation = mp.birthLocation { DetailRow(label: "Miejsce urodzenia", value: birthLocation) }
-                if let email = mp.email { DetailRow(label: "E-mail", value: email) }
+            Section(header: Text(L10n.string(.personalData, language: language))) {
+                if let profession = mp.profession {
+                    DetailRow(label: L10n.string(.profession, language: language), value: profession)
+                }
+                if let education = mp.educationLevel {
+                    DetailRow(label: L10n.string(.education, language: language), value: education)
+                }
+                if let birthDate = mp.birthDate {
+                    DetailRow(label: L10n.string(.birthDate, language: language), value: birthDate)
+                }
+                if let birthLocation = mp.birthLocation {
+                    DetailRow(label: L10n.string(.birthPlace, language: language), value: birthLocation)
+                }
+                if let email = mp.email {
+                    DetailRow(label: L10n.string(.email, language: language), value: email)
+                }
             }
         }
         .listStyle(.insetGrouped)

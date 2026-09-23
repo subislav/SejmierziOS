@@ -10,13 +10,13 @@ public struct SettingsScreen: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            Text(String(localized: "settings_title", defaultValue: "Ustawienia"))
+            Text(L10n.string(.settingsTitle, language: viewModel.state.language))
                 .font(.title2)
                 .fontWeight(.bold)
 
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "settings_data_mode", defaultValue: "Globalny tryb źródła danych"))
+                    Text(L10n.string(.settingsDataMode, language: viewModel.state.language))
                         .font(.headline)
                     Text(modeSubtitle)
                         .font(.subheadline)
@@ -38,7 +38,7 @@ public struct SettingsScreen: View {
             Divider()
 
             VStack(alignment: .leading, spacing: 8) {
-                Text(String(localized: "settings_language", defaultValue: "Język aplikacji"))
+                Text(L10n.string(.settingsLanguage, language: viewModel.state.language))
                     .font(.headline)
 
                 Picker(
@@ -64,8 +64,8 @@ public struct SettingsScreen: View {
 
     private var modeSubtitle: String {
         if viewModel.state.mode == .online {
-            return String(localized: "settings_mode_online", defaultValue: "Online (Pobieranie z API Sejmu)")
+            return L10n.string(.settingsModeOnline, language: viewModel.state.language)
         }
-        return String(localized: "settings_mode_offline", defaultValue: "Offline (Lokalna pamięć podręczna)")
+        return L10n.string(.settingsModeOffline, language: viewModel.state.language)
     }
 }

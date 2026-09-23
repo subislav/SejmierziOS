@@ -24,16 +24,21 @@ public final class BenchmarkViewModel {
         self.settings = settings
         self.exporter = exporter
 
+        let snapshot = metrics.snapshot()
+        self.sampleCount = snapshot.count
+        self.stats = snapshot.summarize(warmup: config.warmupIterations)
+
         Task {
             let initialConfig = await settings.currentBenchmarkConfig()
             self.config = initialConfig
             self.iterationsInput = "\(initialConfig.totalIterations)"
             self.warmupInput = "\(initialConfig.warmupIterations)"
+            self.stats = metrics.snapshot().summarize(warmup: initialConfig.warmupIterations)
         }
 
         self.streamTask.task = Task { [weak self] in
             for await newMetrics in metrics.metricsStream {
-                guard let self = self else { return }
+                guard let self else { return }
                 self.sampleCount = newMetrics.count
                 self.stats = newMetrics.summarize(warmup: self.config.warmupIterations)
             }
@@ -54,7 +59,9 @@ public final class BenchmarkViewModel {
 
     public func clear() {
         metrics.clear()
-        self.lastExportPath = nil
+        sampleCount = 0
+        stats = []
+        lastExportPath = nil
     }
 
     public func exportCsv() {

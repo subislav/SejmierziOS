@@ -17,42 +17,42 @@ public struct RootView: View {
     }
 
     public var body: some View {
-        ZStack {
-            TabView {
-                NavigationStack(path: $mpsRouter.path) {
-                    MpsScreen(viewModel: container.makeMpsViewModel())
-                        .navigationDestination(for: AppRoute.self) { handleRoute($0) }
-                }
-                .tabItem { Label("Posłowie", systemImage: "person.3") }
-                .environment(mpsRouter)
-
-                NavigationStack(path: $votingsRouter.path) {
-                    VotingsScreen(viewModel: container.makeVotingsViewModel())
-                        .navigationDestination(for: AppRoute.self) { handleRoute($0) }
-                }
-                .tabItem { Label("Głosowania", systemImage: "hand.raised") }
-                .environment(votingsRouter)
-
-                NavigationStack(path: $clubsRouter.path) {
-                    ClubsScreen(viewModel: container.makeClubsViewModel())
-                        .navigationDestination(for: AppRoute.self) { handleRoute($0) }
-                }
-                .tabItem { Label("Kluby", systemImage: "building.columns") }
-                .environment(clubsRouter)
-
-                NavigationStack {
-                    BenchmarkScreen(viewModel: container.makeBenchmarkViewModel())
-                }
-                .tabItem { Label("Telemetria", systemImage: "chart.bar.xaxis") }
+        TabView {
+            NavigationStack(path: $mpsRouter.path) {
+                MpsScreen(viewModel: container.makeMpsViewModel())
+                    .navigationDestination(for: AppRoute.self) { handleRoute($0) }
             }
-            .environment(\.benchmarkContext, container.benchmarkContext)
-            .environment(\.openSettings) {
-                withAnimation(.easeInOut(duration: 0.25)) {
-                    isSettingsOpen = true
-                }
-            }
-            .environment(\.locale, Locale(identifier: appLanguage.rawValue))
+            .tabItem { Label(L10n.string(.tabMps, language: appLanguage), systemImage: "person.3") }
+            .environment(mpsRouter)
 
+            NavigationStack(path: $votingsRouter.path) {
+                VotingsScreen(viewModel: container.makeVotingsViewModel())
+                    .navigationDestination(for: AppRoute.self) { handleRoute($0) }
+            }
+            .tabItem { Label(L10n.string(.tabVotings, language: appLanguage), systemImage: "hand.raised") }
+            .environment(votingsRouter)
+
+            NavigationStack(path: $clubsRouter.path) {
+                ClubsScreen(viewModel: container.makeClubsViewModel())
+                    .navigationDestination(for: AppRoute.self) { handleRoute($0) }
+            }
+            .tabItem { Label(L10n.string(.tabClubs, language: appLanguage), systemImage: "building.columns") }
+            .environment(clubsRouter)
+
+            NavigationStack {
+                BenchmarkScreen(viewModel: container.makeBenchmarkViewModel())
+            }
+            .tabItem { Label(L10n.string(.tabTelemetry, language: appLanguage), systemImage: "chart.bar.xaxis") }
+        }
+        .environment(\.benchmarkContext, container.benchmarkContext)
+        .environment(\.openSettings) {
+            withAnimation(.easeInOut(duration: 0.25)) {
+                isSettingsOpen = true
+            }
+        }
+        .environment(\.appLanguage, appLanguage)
+        .environment(\.locale, Locale(identifier: appLanguage.rawValue))
+        .overlay {
             SettingsDrawerOverlay(isOpen: $isSettingsOpen) {
                 SettingsScreen(viewModel: settingsViewModel)
             }

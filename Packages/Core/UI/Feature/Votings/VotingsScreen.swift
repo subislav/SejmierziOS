@@ -6,9 +6,10 @@ public struct VotingsScreen: View {
     @Environment(RootRouter.self) private var router
     @Environment(\.benchmarkContext) private var benchmarkContext
     @Environment(\.openSettings) private var openSettings
+    @Environment(\.appLanguage) private var language
 
     public init(viewModel: VotingsViewModel) {
-        self.viewModel = viewModel
+        _viewModel = State(initialValue: viewModel)
     }
 
     public var body: some View {
@@ -16,11 +17,11 @@ public struct VotingsScreen: View {
             if viewModel.state.isLoading && viewModel.state.votings.isEmpty {
                 LoadingView()
             } else if let error = viewModel.state.error, viewModel.state.votings.isEmpty {
-                MessageView(message: error.localizedMessage) {
+                MessageView(message: error.localizedMessage(language: language)) {
                     viewModel.send(.refresh)
                 }
             } else if viewModel.state.votings.isEmpty {
-                MessageView(message: String(localized: "empty_votings", defaultValue: "Brak głosowań do wyświetlenia."))
+                MessageView(message: L10n.string(.emptyVotings, language: language))
             } else {
                 List {
                     ForEach(viewModel.state.votings, id: \.self) { voting in
@@ -48,10 +49,10 @@ public struct VotingsScreen: View {
                 }
             }
         }
-        .navigationTitle(String(localized: "votings_title", defaultValue: "Głosowania"))
+        .navigationTitle(L10n.string(.votingsTitle, language: language))
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(String(localized: "action_refresh", defaultValue: "Odśwież")) {
+                Button(L10n.string(.actionRefresh, language: language)) {
                     viewModel.send(.refresh)
                 }
             }
@@ -61,7 +62,7 @@ public struct VotingsScreen: View {
                 } label: {
                     Image(systemName: "line.3.horizontal")
                 }
-                .accessibilityLabel(String(localized: "settings_menu", defaultValue: "Ustawienia"))
+                .accessibilityLabel(L10n.string(.settingsMenu, language: language))
             }
         }
         .screenDisplayTracking(slice: "Votings", contentLoaded: !viewModel.state.votings.isEmpty)
